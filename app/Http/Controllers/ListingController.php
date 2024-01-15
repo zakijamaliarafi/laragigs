@@ -31,13 +31,22 @@ class ListingController extends Controller
     public function store(Request $request) {
         $formFields = $request->validate([
             'title' => 'required',
+            'logo' => 'mimes:jpeg,png,bmp,tiff |max:4096',
             'company' => ['required', Rule::unique('listings', 'company')],
             'location' => 'required',
             'website' => 'required',
             'email' => ['required', 'email'],
             'tags' => 'required',
             'description' => 'required',
+        ],
+
+        $messages = [
+            'mimes' => 'Only jpeg, png, bmp,tiff are allowed.'
         ]);
+
+        if($request->hasFile('logo')) {
+            $formFields['logo'] = $request->file('logo')->store('logos', 'public');
+        }
 
         Listing::create($formFields);
 
